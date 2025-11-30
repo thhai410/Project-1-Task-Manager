@@ -1,0 +1,82 @@
+# =============================
+# Python
+# =============================
+
+# File compiled (tạo ra khi chạy code)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Editor-specific files (file tạm của trình soạn thảo)
+.vscode/
+.idea/
+
+# Thư mục chứa môi trường ảo (Virtual Environment)
+venv/
+env/
+/bin/
+/include/
+/lib/
+/lib64/
+
+# Mật khẩu, khóa, và thông tin nhạy cảm
+.env
+.flaskenv
+secrets.json
+config.ini
+*.key
+*.pem
+
+# Database files (File cơ sở dữ liệu)
+*.sqlite
+*.db
+/db.sqlite3
+
+# Logs (file ghi lại nhật ký hoạt động)
+*.log
+/logs/
+
+# File backup
+*~
+
+# =============================
+# Node.js / JavaScript
+# =============================
+
+# Node modules (thư viện cài bằng npm/yarn)
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dependency directories
+/.pnp
+.pnp.js
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Output directories
+dist/
+build/
+out/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
