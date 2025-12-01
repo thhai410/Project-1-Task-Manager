@@ -6,7 +6,7 @@ function App() {
     <div className="App">
       <h1>Task Manager Frontend</h1>
       <p>Frontend is running successfully!</p>
-    </div>
+  </div>
   );
 }
 

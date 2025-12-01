@@ -13,7 +13,11 @@ export const register = async (req, res) => {
 
     const user = await User.create({ name, email, password: hashed });
 
-    res.json({ message: "Registered!", user });
+    // create JWT with expiry and remove password from response
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const { password: _pwd, ...safeUser } = user.toObject();
+
+    res.status(201).json({ message: "Registered!", token, user: safeUser });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -29,9 +33,10 @@ export const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Wrong password" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const { password: _pwd, ...safeUser } = user.toObject();
 
-    res.json({ message: "Logged in!", token, user });
+    res.json({ message: "Logged in!", token, user: safeUser });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
