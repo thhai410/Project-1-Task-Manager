@@ -80,3 +80,45 @@ out/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+# Python
+# ==================================
+
+# File compiled (tạo ra khi chạy code)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Editor-specific files (file tạm của trình soạn thảo)
+.vscode/
+.idea/
+
+# Thư mục chứa môi trường ảo (Virtual Environment)
+# Đây là nơi cài đặt các thư viện, nên luôn bỏ qua
+venv/
+env/
+/bin/
+/include/
+/lib/
+/lib64/
+
+# Mật khẩu, khóa, và thông tin nhạy cảm
+# Luôn luôn bỏ qua file chứa biến môi trường!
+.env
+.flaskenv
+secrets.json
+config.ini
+*.key
+*.pem
+
+# Database files (File cơ sở dữ liệu)
+# Thường là SQLite, file này sẽ được tạo lại khi deploy
+*.sqlite
+*.db
+/db.sqlite3
+
+# Logs (file ghi lại nhật ký hoạt động)
+*.log
+/logs/
+
+# File backup
+*~.
