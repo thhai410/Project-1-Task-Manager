@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-
-const connectDB = async () => {
+const mongoose = require("mongoose");
+require("dotenv").config();
+const connect = async () => {
   try {
     // sử dụng process.env.MONGODB_URI
     const uri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/task-manager";
@@ -12,4 +12,5 @@ const connectDB = async () => {
   }
 };
 
-export default connectDB;
+module.exports = connect;
+

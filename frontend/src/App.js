@@ -1,12 +1,17 @@
-import React from 'react';
-import './App.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/home";
+import Login from "./pages/login";
+import Register from "./pages/register";
 
 function App() {
   return (
-    <div className="App">
-      <h1>Task Manager Frontend</h1>
-      <p>Frontend is running successfully!</p>
-  </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
