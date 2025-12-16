@@ -5,16 +5,14 @@ const memberSchema = new mongoose.Schema(
   {
     user_id: {
       type: schemaType.TypeObjectId,
-      ref: "User",
+      ref: "user",
       required: true,
     },
-
     role: {
       type: schemaType.TypeString,
-      enum: ["owner", "member", "viewer"],
+      enum: ["admin", "member"],
       default: "member",
     },
-
     joined_at: {
       type: schemaType.TypeDate,
       default: Date.now,
@@ -25,9 +23,20 @@ const memberSchema = new mongoose.Schema(
 
 const projectSchema = new mongoose.Schema(
   {
-    project_owner_id: {
+    name: {
+      type: schemaType.TypeString,
+      required: true,
+      trim: true,
+    },
+
+    description: {
+      type: schemaType.TypeString,
+      default: "",
+    },
+
+    owner_id: {
       type: schemaType.TypeObjectId,
-      ref: "User",
+      ref: "user",
       required: true,
     },
 
@@ -38,11 +47,10 @@ const projectSchema = new mongoose.Schema(
 
     title: {
       type: schemaType.TypeString,
-      required: true,
-      trim: true,
+      default: "",
     },
 
-    des: {
+    description_detail: {
       type: schemaType.TypeString,
       default: "",
     },
@@ -51,14 +59,9 @@ const projectSchema = new mongoose.Schema(
       type: schemaType.TypeDate,
     },
 
-    estimate_time: {
-      type: schemaType.TypeNumber,
-      default: 0, // giờ hoặc ngày tuỳ bạn quy ước
-    },
-
     progress: {
-      type: schemaType.TypeNumber,
-      default: 0, // %
+      type: schemaType.TypeString,
+      default: "0",
     },
 
     status: {

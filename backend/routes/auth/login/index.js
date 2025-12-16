@@ -1,8 +1,10 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { SECRET } = require("../../../config");
+// const { SECRET } = require("../../../config");
 const { getPopulatedData, findOne } = require("../../../helpers");
 const Joi = require("joi");
+
+const SECRET = process.env.TOKEN_SECRET;
 
 // Validation schema
 const schema = Joi.object({

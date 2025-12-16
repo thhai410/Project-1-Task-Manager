@@ -17,7 +17,7 @@ const tokenVerification = async (req, res, next) => {
   if (!SECRET) {
     return res.status(500).send({
       status: 500,
-      message: "Server configuration error: TOKEN_SECRET is missing!",
+      message: "Server configuration error: SECRET is missing!",
     });
   }
 
@@ -40,8 +40,12 @@ const tokenVerification = async (req, res, next) => {
     }
 
     // Gắn user id vào request để controller sử dụng
-    req.userId = decoded.id;
+    req.userId = user.id;
+    req.role = user.role;
 
+    console.log("Token verified successfully for user:", user.email); 
+    console.log("User ID from token:", req.userId);
+    console.log("User Role from token:", req.role);
     next();
   });
 };

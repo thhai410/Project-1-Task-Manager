@@ -3,14 +3,6 @@ const schemaType = require("../../types");
 
 const logSchema = new mongoose.Schema(
   {
-    // ID riêng của log
-    id: {
-      type: schemaType.TypeString,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-
     // Log thuộc task nào
     task_id: {
       type: schemaType.TypeObjectId,
