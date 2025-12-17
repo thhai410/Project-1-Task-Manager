@@ -11,7 +11,7 @@ const schema = Joi.object({
   password: Joi.string()
     .pattern(new RegExp("^[a-zA-Z0-9]{6,30}$"))
     .required(),
-  role: Joi.string().valid("admin", "user").default("user"),
+  role: Joi.string().valid("admin", "user", "member").default("user"),
 });
 
 

@@ -36,7 +36,7 @@ const projectSchema = new mongoose.Schema(
 
     owner_id: {
       type: schemaType.TypeObjectId,
-      ref: "user",
+      ref: "User",
       required: true,
     },
 
