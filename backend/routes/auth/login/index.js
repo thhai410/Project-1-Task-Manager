@@ -71,7 +71,8 @@ const loginUser = async (req, res) => {
         email: user.email,
         role: user.role?.toUpperCase() || "USER",
         last_login: user.last_login,
-        token: token,
+        accessToken: token,
+        refreshToken: token, // Same for now
       },
     });
   } catch (e) {

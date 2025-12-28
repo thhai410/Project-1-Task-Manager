@@ -24,17 +24,13 @@ const logSchema = new mongoose.Schema(
     worked_time: {
       type: schemaType.TypeNumber,
       default: 0,
+      min: 0,
     },
 
     user_id: {
       type: schemaType.TypeObjectId,
       ref: "User",
       required: true,
-    },
-
-    created_date: {
-      type: schemaType.TypeDate,
-      default: Date.now,
     },
   },
   { timestamps: true }

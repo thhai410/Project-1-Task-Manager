@@ -9,10 +9,16 @@ const app = express();
 
 dotenv.config();
 // * Connect to database
-connect();
+connect().catch(err => {
+  console.error('Failed to connect to database:', err);
+  process.exit(1);
+});
 
 // * Cors
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 
 // * Body Parser
 app.use(bodyParser.json());

@@ -1,0 +1,16 @@
+/* Logs styles */
+
+.logs-root { padding: 20px; font-family: Inter, Arial, sans-serif; }
+.logs-header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
+.log-create { display:flex; gap:8px; align-items:center; }
+.log-create input { padding:8px 10px; border-radius:8px; border:1px solid var(--border); min-width:120px; }
+
+.logs-list { display:flex; flex-direction:column; gap:8px; }
+.log-item { background: #fff; padding:12px; border-radius:8px; border:1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.04); display:flex; align-items:center; gap:12px; }
+.log-action { font-weight:700; color:var(--text-900); }
+.log-details { flex:1; color:var(--text-700); }
+.log-date { color:var(--text-700); font-size:13px; }
+
+.btn-primary { background: var(--primary); color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+.btn-link { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: 700; }
+.muted { color: var(--text-700); }

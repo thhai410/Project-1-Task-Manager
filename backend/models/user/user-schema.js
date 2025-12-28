@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: schemaType.TypeString,
-      enum: ["admin", "user", "member"],
+      enum: ["admin", "user"],
       default: "user", // admin chỉ quản lý user
     },
 

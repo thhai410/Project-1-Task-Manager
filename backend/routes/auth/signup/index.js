@@ -11,6 +11,8 @@ const schema = Joi.object({
   password: Joi.string()
     .pattern(new RegExp("^[a-zA-Z0-9]{6,30}$"))
     .required(),
+  address: Joi.string(),
+  info: Joi.string(),
   role: Joi.string().valid("admin", "user", "member").default("user"),
 });
 
@@ -68,7 +70,8 @@ const signUpUser = async (req, res) => {
         username: user.username,
         email: user.email,
         password: user.password,
-        token,
+        accessToken: token,
+        refreshToken: token, // Same for now
         role: user.role?.toUpperCase() || "USER",
       },
     });

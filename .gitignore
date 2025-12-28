@@ -10,7 +10,7 @@ __pycache__/
 # Editor-specific files (file tạm của trình soạn thảo)
 .vscode/
 .idea/
-
+git 
 # Thư mục chứa môi trường ảo (Virtual Environment)
 venv/
 env/

@@ -3,11 +3,12 @@ const Config = require("../../config/db");
 const { getDbUserData, findOne } = require("../../helpers");
 
 const tokenVerification = async (req, res, next) => {
-  const token = req.headers["token"];
-
+  // Express normalizes headers to lowercase
+  const authHeader = req.headers["authorization"] || req.headers["Authorization"];
+  const token = authHeader && authHeader.split(' ')[1];
   if (!token) {
-    return res.status(404).send({
-      status: 404,
+    return res.status(401).send({
+      status: "FAILED",
       message: "No token provided!",
     });
   }
@@ -16,15 +17,15 @@ const tokenVerification = async (req, res, next) => {
 
   if (!SECRET) {
     return res.status(500).send({
-      status: 500,
+      status: "FAILED",
       message: "Server configuration error: SECRET is missing!",
     });
   }
 
   jwt.verify(token, SECRET, async (err, decoded) => {
     if (err) {
-      return res.status(400).send({
-        status: 400,
+      return res.status(401).send({
+        status: "FAILED",
         message: "Token unauthorized!",
       });
     }
@@ -34,14 +35,15 @@ const tokenVerification = async (req, res, next) => {
 
     if (!user) {
       return res.status(404).send({
-        status: 404,
+        status: "FAILED",
         message: "User does not exist.",
       });
     }
 
     // Gắn user id vào request để controller sử dụng
-    req.userId = user.id;
+    req.userId = user._id.toString(); // Use _id
     req.role = user.role;
+    req.user = user; // Add full user object
 
     console.log("Token verified successfully for user:", user.email); 
     console.log("User ID from token:", req.userId);

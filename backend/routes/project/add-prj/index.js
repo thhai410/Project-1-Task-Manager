@@ -11,8 +11,8 @@ const schema = Joi.object({
   description: Joi.string().allow(""),
   title: Joi.string().allow(""),
   description_detail: Joi.string().allow(""),
-  due_date: Joi.date().greater("now").optional().messages({
-    "date.greater": "Ngày hết hạn phải lớn hơn ngày hiện tại"
+  due_date: Joi.date().optional().messages({
+    "date.base": "Ngày hết hạn phải là ngày hợp lệ"
   }),
   document: Joi.string().allow(""),
   // Các trường như status, progress, owner_id không cần validate từ body vì sẽ set mặc định hoặc lấy từ token

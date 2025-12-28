@@ -1,0 +1,149 @@
+/* Fullscreen background hero with overlayed texts */
+* {
+  box-sizing: border-box
+}
+
+body {
+  margin: 0
+}
+
+.home-bg {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background: url('../../../../public/assets/home.jpg') center/cover no-repeat;
+  color: #2a2a2a;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+.home-overlay {
+  display: none;
+}
+
+.home-top {
+  position: relative;
+  z-index: 1;
+  padding: 16px 24px
+}
+
+.home-top__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px
+}
+
+/* ĐIỀU CHỈNH VỊ TRÍ NÚT ĐĂNG NHẬP/ĐĂNG KÝ: thay đổi margin-left/top ở đây */
+.home-auth {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+  position: relative;
+}
+
+.home-auth .lnk {
+  color: #d56f67;
+  text-decoration: none;
+  font-weight: 700;
+  position: absolute;
+  top: 10px;
+  right: 170px;
+  z-index: 10;
+  display: flex;        /* Bắt buộc các con bên trong xếp hàng ngang */
+  width: max-content;   /* Bắt buộc khung rộng ra để chứa đủ nội dung, không được co lại */
+  gap: 10px;
+}
+
+.home-auth .btn {
+  background: #d56f67;
+  color: #fff;
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  position: absolute;
+  top: 2px;
+  right: 50px;
+  z-index: 10;
+  display: flex;        /* Bắt buộc các con bên trong xếp hàng ngang */
+  width: max-content;   /* Bắt buộc khung rộng ra để chứa đủ nội dung, không được co lại */
+  gap: 10px;
+}
+
+.home-hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-height: calc(100vh - 72px)
+}
+
+/* VỊ TRÍ KHỐI TEXT CHÍNH TRÊN ẢNH: chỉnh padding-top/left để dịch chỗ hiển thị */
+.home-hero__content {
+  position: absolute;
+  max-width: 1180px;
+  color: #c9665f;
+  padding: 0px 24px 0px 120px;
+  margin-top: -115px;
+}
+
+.home-hero .kicker {
+  letter-spacing: .18em;
+  font-weight: 800;
+  opacity: .9
+}
+
+.home-hero h1 {
+  font-size: 48px;
+  line-height: 1.02;
+  margin: 6px 0 10px
+}
+
+.home-hero .sub {
+  font-weight: 700;
+  color: #d38270;
+  margin: 0 0 6px
+}
+
+.home-hero .desc {
+  max-width: 560px;
+  color: #c67d6c;
+  font-weight: 500;
+}
+
+.home-hero .cta {
+  display: inline-block;
+  margin-top: 20px;
+  background: #d56f67;
+  color: #fff;
+  text-decoration: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 700
+}
+
+@media (max-width: 720px) {
+  .home-hero h1 {
+    font-size: 38px
+  }
+}
+
+/* Dashboard styles */
+.dashboard-bg {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #fff4f1 0%, #ffe8e0 100%);
+  color: #2a2a2a;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+.dashboard-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+}

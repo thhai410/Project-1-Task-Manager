@@ -28,7 +28,9 @@ const schema = Joi.object({
   assignee_id: Joi.string().optional().trim().messages({
     "string.base": "ID người thực hiện phải là chuỗi"
   }),
-  // Các trường như status, created_date không cần validate từ body vì sẽ set mặc định
+  status: Joi.string().valid("Not Started", "In Progress", "Completed").optional().messages({
+    "any.only": "Trạng thái phải là một trong: Not Started, In Progress, Completed"
+  })
 });
 
 const addTask = async (req, res) => {
