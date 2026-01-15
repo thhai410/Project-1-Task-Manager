@@ -27,67 +27,69 @@ function TaskCard({ task, onEdit, onDelete }) {
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
-      className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition cursor-move mb-3"
+      className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition mb-3"
     >
-      <div className="flex items-start justify-between mb-3">
-        <h4 className="font-semibold text-gray-800 flex-1 cursor-pointer hover:text-orange-600" onClick={() => onEdit(task)}>{task.title}</h4>
-        <span className={`px-2 py-1 rounded text-xs font-semibold ${
-          task.priority === 'High' ? 'bg-red-100 text-red-700' :
-          task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-          'bg-green-100 text-green-700'
-        }`}>
-          {task.priority || 'Medium'}
-        </span>
+      {/* Draggable Area */}
+      <div {...listeners} className="cursor-move p-4">
+        <div className="flex items-start justify-between mb-3">
+          <h4 className="font-semibold text-gray-800 flex-1 cursor-pointer hover:text-orange-600" onClick={() => onEdit(task)}>{task.title}</h4>
+          <span className={`px-2 py-1 rounded text-xs font-semibold ${
+            task.priority === 'High' ? 'bg-red-100 text-red-700' :
+            task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+            'bg-green-100 text-green-700'
+          }`}>
+            {task.priority || 'Medium'}
+          </span>
+        </div>
+
+        {task.des && (
+          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{task.des}</p>
+        )}
+
+        {typeof task.progress === 'number' && (
+          <div className="mb-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-gray-600">Tiến độ</span>
+              <span className="text-xs font-semibold text-gray-700">{task.progress}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-orange-500 h-2 rounded-full transition-all"
+                style={{ width: `${task.progress}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between text-sm text-gray-500">
+          <div className="flex items-center gap-2">
+            {task.due_date && (
+              <div className="flex items-center gap-1 text-xs">
+                <Calendar className="w-3 h-3" />
+                {new Date(task.due_date).toLocaleDateString('vi-VN')}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {task.assignee_id ? (
+              <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white text-xs font-semibold" title={task.assignee_id.name}>
+                {task.assignee_id.name?.[0] || 'U'}
+              </div>
+            ) : (
+              <span className="text-xs text-gray-400">Chưa giao</span>
+            )}
+          </div>
+        </div>
       </div>
 
-      {task.des && (
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{task.des}</p>
-      )}
-
-      {typeof task.progress === 'number' && (
-        <div className="mb-3">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-gray-600">Tiến độ</span>
-            <span className="text-xs font-semibold text-gray-700">{task.progress}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-orange-500 h-2 rounded-full transition-all"
-              style={{ width: `${task.progress}%` }}
-            ></div>
-          </div>
-        </div>
-      )}
-
-      <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-        <div className="flex items-center gap-2">
-          {task.due_date && (
-            <div className="flex items-center gap-1 text-xs">
-              <Calendar className="w-3 h-3" />
-              {new Date(task.due_date).toLocaleDateString('vi-VN')}
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {task.assignee_id ? (
-            <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white text-xs font-semibold" title={task.assignee_id.name}>
-              {task.assignee_id.name?.[0] || 'U'}
-            </div>
-          ) : (
-            <span className="text-xs text-gray-400">Chưa giao</span>
-          )}
-        </div>
-      </div>
-
-      {/* Edit & Delete Buttons */}
-      <div className="flex gap-2 pt-3 border-t border-gray-100">
+      {/* Edit & Delete Buttons - NOT draggable */}
+      <div className="flex gap-2 px-4 pb-3 border-t border-gray-100 pt-3">
         <button
           onClick={(e) => {
             e.stopPropagation();
             onEdit(task);
           }}
-          className="flex-1 flex items-center justify-center gap-2 px-2 py-1.5 text-xs text-gray-600 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 px-2 py-1.5 text-xs text-gray-600 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors cursor-pointer"
         >
           <Edit2 className="w-3.5 h-3.5" />
           Sửa
@@ -97,7 +99,7 @@ function TaskCard({ task, onEdit, onDelete }) {
             e.stopPropagation();
             onDelete(task._id);
           }}
-          className="flex-1 flex items-center justify-center gap-2 px-2 py-1.5 text-xs text-gray-600 bg-gray-50 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 px-2 py-1.5 text-xs text-gray-600 bg-gray-50 hover:bg-red-50 hover:text-red-600 rounded transition-colors cursor-pointer"
         >
           <Trash2 className="w-3.5 h-3.5" />
           Xóa

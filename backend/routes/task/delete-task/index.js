@@ -1,5 +1,7 @@
 // Giả định đường dẫn tới model Task
-const Task = require("../../../models/task");
+const mongoose = require("mongoose");
+const taskSchema = require("../../../models/task/task-schema");
+const Task = mongoose.models.Task || mongoose.model("Task", taskSchema);
 
 const deleteTask = async (req, res) => {
   try {
@@ -20,22 +22,33 @@ const deleteTask = async (req, res) => {
       });
     }
 
-    // 3. Thực hiện xóa Task
-    // Lưu ý: Ở đây ta dùng findByIdAndDelete để tìm và xóa theo ID.
-    // Nếu bạn muốn kiểm tra quyền (ví dụ: chỉ người tạo hoặc admin mới được xóa),
-    // bạn cần logic phức tạp hơn (tìm task -> check project/owner -> xóa).
-    // Ở mức cơ bản, ta cho phép xóa nếu có ID hợp lệ.
-    const deletedTask = await Task.findByIdAndDelete(taskId);
-
-    // 4. Kiểm tra kết quả
-    if (!deletedTask) {
+    // 3. Tìm task trước khi xóa (để check quyền)
+    const taskToDelete = await Task.findById(taskId);
+    if (!taskToDelete) {
       return res.status(404).send({
         status: "FAILED",
         message: "Task không tồn tại hoặc đã bị xóa.",
       });
     }
 
-    // 5. Trả về kết quả thành công
+    // 4. Kiểm tra authorization
+    // - Admin có thể xóa bất kỳ task nào
+    // - User thường chỉ xóa được task được assign cho mình hoặc task chưa được assign cho ai
+    const isAdmin = req.role?.toLowerCase() === 'admin';
+    const isAssignee = taskToDelete.assignee_id?.toString() === req.userId;
+    const isUnassigned = !taskToDelete.assignee_id; // Task chưa được assign cho ai
+    
+    if (!isAdmin && !isAssignee && !isUnassigned) {
+      return res.status(403).send({
+        status: "FAILED",
+        message: "Bạn không có quyền xóa task này. Chỉ người được giao việc, task chưa được assign, hoặc admin mới có thể xóa!",
+      });
+    }
+
+    // 5. Thực hiện xóa Task
+    const deletedTask = await Task.findByIdAndDelete(taskId);
+
+    // 6. Trả về kết quả thành công
     return res.status(200).send({
       status: "SUCCESS",
       message: `Đã xóa task: '${deletedTask.title}' thành công!`,

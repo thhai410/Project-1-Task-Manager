@@ -47,6 +47,11 @@ const schema = Joi.object({
   priority: Joi.string().valid("Low", "Medium", "High").optional(),
   status: Joi.string().valid("Not Started", "In Progress", "Completed").optional(),
   
+  // Project ID - cho phép thay đổi dự án
+  project_id: Joi.string().trim().optional().messages({
+    "string.base": "ID dự án phải là chuỗi"
+  }),
+  
   assignee_id: Joi.string().trim().optional().messages({
     "string.base": "ID người thực hiện phải là chuỗi"
   }),
@@ -74,7 +79,30 @@ const updateTask = async (req, res) => {
     // 3. Validate dữ liệu gửi lên (req.body)
     const validated = await schema.validateAsync(req.body);
 
-    // 4. Tìm và Cập nhật Task
+    // 4. Kiểm tra quyền - Lấy task hiện tại
+    const currentTask = await Task.findById(id);
+    if (!currentTask) {
+      return res.status(404).send({
+        status: "FAILED",
+        message: "Không tìm thấy task!",
+      });
+    }
+
+    // 5. Kiểm tra authorization
+    // - Admin có thể sửa bất kỳ task nào
+    // - User thường chỉ sửa được task được assign cho mình hoặc task chưa được assign cho ai
+    const isAdmin = req.role?.toLowerCase() === 'admin';
+    const isAssignee = currentTask.assignee_id?.toString() === req.userId;
+    const isUnassigned = !currentTask.assignee_id; // Task chưa được assign cho ai
+    
+    if (!isAdmin && !isAssignee && !isUnassigned) {
+      return res.status(403).send({
+        status: "FAILED",
+        message: "Bạn không có quyền sửa task này. Chỉ người được giao việc, task chưa được assign, hoặc admin mới có thể sửa!",
+      });
+    }
+
+    // 6. Tìm và Cập nhật Task
     // - { new: true }: Trả về data mới sau khi update (mặc định mongo trả về data cũ)
     // - { runValidators: true }: Bắt buộc check lại Enum (VD: gửi status="ABC" sẽ lỗi ngay)
     const updatedTask = await Task.findByIdAndUpdate(
@@ -85,15 +113,7 @@ const updateTask = async (req, res) => {
     // Populate luôn để Frontend cập nhật lại giao diện (VD: hiện avatar người mới được assign)
     .populate("assignee_id", "name email user_name role");
 
-    // 5. Kiểm tra nếu không tìm thấy task
-    if (!updatedTask) {
-      return res.status(404).send({
-        status: "FAILED",
-        message: "Không tìm thấy task hoặc ID không hợp lệ!",
-      });
-    }
-
-    // 6. Automatically update project progress if task progress was updated
+    // 7. Automatically update project progress if task progress was updated
     if (validated.progress !== undefined && updatedTask.project_id) {
       const projectProgress = await calculateProjectProgress(updatedTask.project_id);
       await Project.findByIdAndUpdate(
@@ -103,7 +123,7 @@ const updateTask = async (req, res) => {
       );
     }
 
-    // 7. Trả về kết quả
+    // 8. Trả về kết quả
     return res.status(200).send({
       status: "SUCCESS",
       message: "Cập nhật task thành công!",
