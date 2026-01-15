@@ -48,7 +48,19 @@ export default function Dashboard() {
         return completedDate >= weekAgo;
       }).length;
 
-      const totalMembers = [...new Set(projects.flatMap(p => p.members?.map(m => m.user_id) || []))].length;
+      // Tính tổng thành viên duy nhất (loại bỏ duplicates)
+      const uniqueMemberIds = new Set();
+      projects.forEach(p => {
+        if (p.members && Array.isArray(p.members)) {
+          p.members.forEach(m => {
+            const memberId = m.user_id?._id || m.user_id;
+            if (memberId) {
+              uniqueMemberIds.add(memberId);
+            }
+          });
+        }
+      });
+      const totalMembers = uniqueMemberIds.size;
 
       // Set stats
       setStats({

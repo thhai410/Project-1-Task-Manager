@@ -147,6 +147,7 @@ function TaskModal({ isOpen, onClose, task, projects, onSave }) {
   });
   const [projectMembers, setProjectMembers] = useState([]);
 
+  // Khởi tạo form khi task thay đổi hoặc modal mở
   useEffect(() => {
     if (task) {
       setFormData({
@@ -173,8 +174,10 @@ function TaskModal({ isOpen, onClose, task, projects, onSave }) {
         progress: 0
       });
     }
-    
-    // Load project members when project_id changes
+  }, [task, projects, isOpen]);
+  
+  // Cập nhật project members khi project_id thay đổi
+  useEffect(() => {
     if (formData.project_id) {
       const selectedProject = projects.find(p => p._id === formData.project_id);
       if (selectedProject?.members) {
