@@ -161,6 +161,11 @@ REACT_APP_API_URL=/api
 
 ---
 
+### Test Admin:
+
+* Email: admin@taskflow.com
+* Password: admin123
+
 ## ▶️ Chạy project ở local
 
 ### 1️⃣ Backend
@@ -181,22 +186,10 @@ npm start
 
 ---
 
-## 🚀 Deploy (gộp frontend + backend)
+## 🚀 Live Demo
 
-### Build frontend
+👉 [Task Manager](https://task-manager-k3fq.onrender.com)
 
-```bash
-cd frontend
-npm run build
-```
-
-### Backend serve frontend
-
-Backend sử dụng thư mục `frontend/build` để serve giao diện React khi deploy.
-
-### Nền tảng deploy
-
-* Render (Node Web Service)
 
 ---
 
