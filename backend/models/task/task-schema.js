@@ -52,6 +52,13 @@ const taskSchema = new mongoose.Schema(
       default: "Not Started",
     },
 
+    progress: {
+      type: schemaType.TypeNumber,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
+
     created_date: {
       type: schemaType.TypeDate,
       default: Date.now,

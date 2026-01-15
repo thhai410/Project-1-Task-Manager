@@ -60,8 +60,10 @@ const projectSchema = new mongoose.Schema(
     },
 
     progress: {
-      type: schemaType.TypeString,
-      default: "0",
+      type: schemaType.TypeNumber,
+      default: 0,
+      min: 0,
+      max: 100
     },
 
     status: {

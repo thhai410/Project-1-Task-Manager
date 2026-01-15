@@ -52,6 +52,21 @@ function TaskCard({ task, onEdit, onDelete }) {
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">{task.des}</p>
       )}
 
+      {typeof task.progress === 'number' && (
+        <div className="mb-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs text-gray-600">Tiến độ</span>
+            <span className="text-xs font-semibold text-gray-700">{task.progress}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-orange-500 h-2 rounded-full transition-all"
+              style={{ width: `${task.progress}%` }}
+            ></div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between text-sm text-gray-500">
         <div className="flex items-center gap-2">
           {task.due_date && (
@@ -126,8 +141,11 @@ function TaskModal({ isOpen, onClose, task, projects, onSave }) {
     project_id: '',
     due_date: '',
     assignee_id: '',
-    estimate_time: 0
+    estimate_time: 0,
+    worked_time: 0,
+    progress: 0
   });
+  const [projectMembers, setProjectMembers] = useState([]);
 
   useEffect(() => {
     if (task) {
@@ -138,7 +156,9 @@ function TaskModal({ isOpen, onClose, task, projects, onSave }) {
         project_id: task.project_id?._id || task.project_id || '',
         due_date: task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : '',
         assignee_id: task.assignee_id?._id || task.assignee_id || '',
-        estimate_time: task.estimate_time || 0
+        estimate_time: task.estimate_time || 0,
+        worked_time: task.worked_time || 0,
+        progress: task.progress || 0
       });
     } else {
       setFormData({
@@ -148,10 +168,20 @@ function TaskModal({ isOpen, onClose, task, projects, onSave }) {
         project_id: projects[0]?._id || '',
         due_date: '',
         assignee_id: '',
-        estimate_time: 0
+        estimate_time: 0,
+        worked_time: 0,
+        progress: 0
       });
     }
-  }, [task, projects]);
+    
+    // Load project members when project_id changes
+    if (formData.project_id) {
+      const selectedProject = projects.find(p => p._id === formData.project_id);
+      if (selectedProject?.members) {
+        setProjectMembers(selectedProject.members);
+      }
+    }
+  }, [task, projects, formData.project_id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -239,6 +269,60 @@ function TaskModal({ isOpen, onClose, task, projects, onSave }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Người thực hiện</label>
+              <select
+                value={formData.assignee_id}
+                onChange={(e) => setFormData({...formData, assignee_id: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="">Chọn người thực hiện</option>
+                {projectMembers && projectMembers.length > 0 ? (
+                  projectMembers.map(member => (
+                    <option key={member.user_id?._id || member._id} value={member.user_id?._id || member._id}>
+                      {member.user_id?.name || member.name || 'Unknown'}
+                    </option>
+                  ))
+                ) : (
+                  <option disabled>Không có thành viên</option>
+                )}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Thời gian làm việc (giờ)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.5"
+                value={formData.worked_time}
+                onChange={(e) => setFormData({...formData, worked_time: parseFloat(e.target.value) || 0})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tiến độ (%)</label>
+            <div className="flex items-center gap-3 mb-2">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={formData.progress}
+                onChange={(e) => setFormData({...formData, progress: parseInt(e.target.value) || 0})}
+                className="flex-1"
+              />
+              <span className="text-sm font-semibold text-gray-700 min-w-[50px]">{formData.progress}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-orange-500 h-2 rounded-full transition-all"
+                style={{ width: `${formData.progress}%` }}
+              ></div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Ngày hết hạn</label>
               <input
                 type="date"
@@ -287,6 +371,8 @@ export default function TaskBoard() {
   const [activeId, setActiveId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [progressFilter, setProgressFilter] = useState('');
+  const [showProgressFilter, setShowProgressFilter] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -296,7 +382,13 @@ export default function TaskBoard() {
   const fetchTasks = async () => {
     setLoading(true);
     try {
-      const res = await getTasks();
+      const params = {};
+      if (progressFilter) {
+        const [min, max] = progressFilter.split('-');
+        params.progressMin = parseInt(min) || 0;
+        params.progressMax = parseInt(max) || 100;
+      }
+      const res = await getTasks(params);
       setTasks(res?.data || []);
     } catch (e) {
       console.error('fetchTasks', e);
@@ -318,6 +410,10 @@ export default function TaskBoard() {
     fetchProjects();
     fetchTasks();
   }, []);
+
+  useEffect(() => {
+    fetchTasks();
+  }, [progressFilter]);
 
   const handleDragStart = (event) => {
     setActiveId(event.active.id);
@@ -420,11 +516,49 @@ export default function TaskBoard() {
           <h1 className="text-2xl font-bold text-gray-900">Bảng Kanban</h1>
           <p className="text-gray-600 mt-1">Quản lý công việc theo trạng thái</p>
         </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-            <Filter className="w-5 h-5" />
-            Lọc
-          </button>
+        <div className="flex gap-3 relative">
+          <div className="relative">
+            <button
+              onClick={() => setShowProgressFilter(!showProgressFilter)}
+              className="flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Filter className="w-5 h-5" />
+              Lọc tiến độ {progressFilter && `(${progressFilter}%)`}
+            </button>
+            {showProgressFilter && (
+              <div className="absolute top-full mt-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg p-4 min-w-56 z-50">
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phạm vi tiến độ</label>
+                    <select
+                      value={progressFilter}
+                      onChange={(e) => {
+                        setProgressFilter(e.target.value);
+                        setShowProgressFilter(false);
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                    >
+                      <option value="">Tất cả</option>
+                      <option value="0-25">0% - 25% (Mới bắt đầu)</option>
+                      <option value="25-50">25% - 50% (Đang tiến hành)</option>
+                      <option value="50-75">50% - 75% (Gần hoàn thành)</option>
+                      <option value="75-100">75% - 100% (Sắp xong)</option>
+                      <option value="100-100">100% (Hoàn thành)</option>
+                    </select>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setProgressFilter('');
+                      setShowProgressFilter(false);
+                    }}
+                    className="w-full px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded transition"
+                  >
+                    Xóa lọc
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
           <button
             onClick={handleCreateTask}
             className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"

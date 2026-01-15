@@ -149,4 +149,12 @@ module.exports = {
   countDocuments,
   findAndSort,
   updateMany,
+  // Helper function to calculate project progress based on tasks
+  calculateProjectProgress: async (projectId) => {
+    const tasks = await Models.Task.find({ project_id: projectId });
+    if (tasks.length === 0) return 0;
+    
+    const totalProgress = tasks.reduce((sum, task) => sum + (task.progress || 0), 0);
+    return Math.round(totalProgress / tasks.length);
+  },
 };

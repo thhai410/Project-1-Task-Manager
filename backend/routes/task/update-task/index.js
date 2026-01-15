@@ -4,17 +4,28 @@ const mongoose = require("mongoose");
 // 1. IMPORT SCHEMA (Theo đúng đường dẫn như file get-tasks của bạn)
 const taskSchema = require("../../../models/task/task-schema");
 const userSchema = require("../../../models/user/user-schema");
+const projectSchema = require("../../../models/project/project-schema");
 // Project schema cần thiết nếu bạn muốn validate hoặc populate project sau này
 // const projectSchema = require("../../../models/project/project-schema"); 
 
 // 2. ĐĂNG KÝ MODEL (BẮT BUỘC để tránh lỗi Schema hasn't been registered)
 // Logic: Nếu Model đã có thì dùng, chưa có thì tạo mới từ Schema
 const Task = mongoose.models.Task || mongoose.model("Task", taskSchema);
+const Project = mongoose.models.Project || mongoose.model("Project", projectSchema);
 
 // Đăng ký Model User để dùng cho populate khi trả về task đã update
 if (!mongoose.models.User) {
   mongoose.model("User", userSchema);
 }
+
+// Helper function to calculate project progress
+const calculateProjectProgress = async (projectId) => {
+  const tasks = await Task.find({ project_id: projectId });
+  if (tasks.length === 0) return 0;
+  
+  const totalProgress = tasks.reduce((sum, task) => sum + (task.progress || 0), 0);
+  return Math.round(totalProgress / tasks.length);
+};
 
 // 3. VALIDATION SCHEMA (Validate req.body - dữ liệu gửi lên để sửa)
 // Tất cả các trường đều là .optional() vì người dùng có thể chỉ sửa 1 trường (VD: chỉ đổi status)
@@ -27,6 +38,10 @@ const schema = Joi.object({
   
   estimate_time: Joi.number().optional(),
   worked_time: Joi.number().optional(),
+  progress: Joi.number().min(0).max(100).optional().messages({
+    "number.min": "Tiến độ phải >= 0",
+    "number.max": "Tiến độ phải <= 100"
+  }),
   
   // Validate Enum giống như trong Schema
   priority: Joi.string().valid("Low", "Medium", "High").optional(),
@@ -78,7 +93,17 @@ const updateTask = async (req, res) => {
       });
     }
 
-    // 6. Trả về kết quả
+    // 6. Automatically update project progress if task progress was updated
+    if (validated.progress !== undefined && updatedTask.project_id) {
+      const projectProgress = await calculateProjectProgress(updatedTask.project_id);
+      await Project.findByIdAndUpdate(
+        updatedTask.project_id,
+        { progress: projectProgress },
+        { new: true }
+      );
+    }
+
+    // 7. Trả về kết quả
     return res.status(200).send({
       status: "SUCCESS",
       message: "Cập nhật task thành công!",

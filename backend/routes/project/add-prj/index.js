@@ -15,6 +15,7 @@ const schema = Joi.object({
     "date.base": "Ngày hết hạn phải là ngày hợp lệ"
   }),
   document: Joi.string().allow(""),
+  progress: Joi.number().min(0).max(100).optional(),
   // Các trường như status, progress, owner_id không cần validate từ body vì sẽ set mặc định hoặc lấy từ token
 });
 

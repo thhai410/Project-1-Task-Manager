@@ -29,6 +29,12 @@ const schema = Joi.object({
   }),
   status: Joi.string().valid("Not Started", "In Progress", "Completed").optional(),
   priority: Joi.string().valid("Low", "Medium", "High").optional(),
+  progressMin: Joi.number().min(0).max(100).optional().messages({
+    "number.base": "Progress min phải là số"
+  }),
+  progressMax: Joi.number().min(0).max(100).optional().messages({
+    "number.base": "Progress max phải là số"
+  }),
   keyword: Joi.string().allow("").optional(), // Để tìm kiếm theo title
 });
 
@@ -62,6 +68,17 @@ const getTasks = async (req, res) => {
     // Lọc theo trạng thái và ưu tiên
     if (queryParams.status) condition.status = queryParams.status;
     if (queryParams.priority) condition.priority = queryParams.priority;
+
+    // Lọc theo tiến độ (progress)
+    if (queryParams.progressMin !== undefined || queryParams.progressMax !== undefined) {
+      condition.progress = {};
+      if (queryParams.progressMin !== undefined) {
+        condition.progress.$gte = queryParams.progressMin;
+      }
+      if (queryParams.progressMax !== undefined) {
+        condition.progress.$lte = queryParams.progressMax;
+      }
+    }
 
     // Tìm kiếm tương đối (Like search) theo Title
     if (queryParams.keyword) {

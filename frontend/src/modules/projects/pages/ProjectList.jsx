@@ -23,6 +23,10 @@ export default function ProjectList() {
     fetchProjects();
   }, []);
 
+  useEffect(() => {
+    fetchProjects();
+  }, [statusFilter, searchTerm]);
+
   const fetchProjects = async () => {
     try {
       setLoading(true);
@@ -72,6 +76,7 @@ export default function ProjectList() {
         description_detail: formData.description_detail || '',
         deadline: formData.due_date || null,
         status: formData.status || 'Not Started',
+        progress: formData.progress || 0,
         document: formData.document || ''
       };
       const res = await updateProject(payload);
@@ -182,19 +187,13 @@ export default function ProjectList() {
             type="text"
             placeholder="Tìm kiếm dự án..."
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setTimeout(fetchProjects, 300);
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           />
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            setTimeout(fetchProjects, 100);
-          }}
+          onChange={(e) => setStatusFilter(e.target.value)}
           className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
         >
           <option value="">Tất cả trạng thái</option>
@@ -485,7 +484,8 @@ function EditProjectModal({ isOpen, onClose, project, onSave }) {
     description_detail: '',
     due_date: '',
     document: '',
-    status: 'Not Started'
+    status: 'Not Started',
+    progress: 0
   });
 
   useEffect(() => {
@@ -497,7 +497,8 @@ function EditProjectModal({ isOpen, onClose, project, onSave }) {
         description_detail: project.description_detail || '',
         due_date: project.due_date ? new Date(project.due_date).toISOString().split('T')[0] : '',
         document: project.document || '',
-        status: project.status || 'Not Started'
+        status: project.status || 'Not Started',
+        progress: project.progress || 0
       });
     }
   }, [project]);
@@ -559,6 +560,27 @@ function EditProjectModal({ isOpen, onClose, project, onSave }) {
                 <option value="In Progress">Đang tiến hành</option>
                 <option value="Completed">Hoàn thành</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tiến độ (%)</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={formData.progress}
+                  onChange={(e) => setFormData({...formData, progress: parseInt(e.target.value) || 0})}
+                  className="flex-1"
+                />
+                <span className="text-sm font-semibold text-gray-700 min-w-[50px]">{formData.progress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div
+                  className="bg-orange-500 h-2 rounded-full transition-all"
+                  style={{ width: `${formData.progress}%` }}
+                ></div>
+              </div>
             </div>
 
             <div>
@@ -681,23 +703,39 @@ function ProjectDetailModal({ isOpen, onClose, project, tasks, isOwner, onAddMem
           {/* Tasks */}
           <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-3">Công việc ({tasks.length})</h3>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {tasks.length > 0 ? (
                 tasks.map((task) => (
-                  <div key={task._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-gray-800">{task.title}</p>
-                      <p className="text-sm text-gray-500">
-                        {task.assignee_id?.name || 'Chưa giao'} • {task.status || 'Not Started'}
-                      </p>
+                  <div key={task._id} className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-800">{task.title}</p>
+                        <p className="text-sm text-gray-500">
+                          {task.assignee_id?.name || 'Chưa giao'} • {task.status || 'Not Started'}
+                        </p>
+                      </div>
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        task.priority === 'High' ? 'bg-red-100 text-red-800' :
+                        task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {task.priority || 'Medium'}
+                      </span>
                     </div>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      task.priority === 'High' ? 'bg-red-100 text-red-800' :
-                      task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                      {task.priority || 'Medium'}
-                    </span>
+                    {typeof task.progress === 'number' && (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-600">Tiến độ</span>
+                          <span className="text-xs font-semibold text-gray-700">{task.progress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-300 rounded-full h-1.5">
+                          <div
+                            className="bg-orange-500 h-1.5 rounded-full transition-all"
+                            style={{ width: `${task.progress}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))
               ) : (

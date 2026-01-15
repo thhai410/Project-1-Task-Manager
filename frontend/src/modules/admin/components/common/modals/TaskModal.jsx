@@ -43,6 +43,7 @@ const TaskModal = ({ open, onClose, tasks, setTasks, fetchApi }) => {
                 <th className="px-4 py-3 text-left">Dự án</th>
                 <th className="px-4 py-3 text-left">Người thực hiện</th>
                 <th className="px-4 py-3 text-left">Trạng thái</th>
+                <th className="px-4 py-3 text-left">Tiến độ</th>
                 <th className="px-4 py-3 text-left">Ưu tiên</th>
                 <th className="px-4 py-3 text-left">Hạn chót</th>
               </tr>
@@ -67,6 +68,21 @@ const TaskModal = ({ open, onClose, tasks, setTasks, fetchApi }) => {
                     >
                       {t.status || 'Not Started'}
                     </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    {typeof t.progress === 'number' ? (
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-gray-200 rounded-full h-1.5 min-w-[40px]">
+                          <div
+                            className="bg-orange-500 h-1.5 rounded-full transition-all"
+                            style={{ width: `${t.progress}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-xs font-semibold text-gray-700 min-w-[30px]">{t.progress}%</span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">N/A</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span

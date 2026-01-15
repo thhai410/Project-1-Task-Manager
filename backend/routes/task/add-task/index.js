@@ -1,6 +1,20 @@
 const Joi = require("joi");
+const mongoose = require("mongoose");
 // Giả định đường dẫn tới model Task, bạn hãy điều chỉnh lại cho đúng cấu trúc folder của bạn
 const Task = require("../../../models/task");
+const projectSchema = require("../../../models/project/project-schema");
+
+// Register Project model
+const Project = mongoose.models.Project || mongoose.model("Project", projectSchema);
+
+// Helper function to calculate project progress
+const calculateProjectProgress = async (projectId) => {
+  const tasks = await Task.find({ project_id: projectId });
+  if (tasks.length === 0) return 0;
+  
+  const totalProgress = tasks.reduce((sum, task) => sum + (task.progress || 0), 0);
+  return Math.round(totalProgress / tasks.length);
+};
 
 // Validation schema cho dữ liệu gửi lên
 const schema = Joi.object({
@@ -21,6 +35,10 @@ const schema = Joi.object({
   }),
   worked_time: Joi.number().optional().messages({
     "number.base": "Thời gian đã làm phải là số"
+  }),
+  progress: Joi.number().min(0).max(100).optional().messages({
+    "number.min": "Tiến độ phải >= 0",
+    "number.max": "Tiến độ phải <= 100"
   }),
   priority: Joi.string().valid("Low", "Medium", "High").optional().messages({
     "any.only": "Ưu tiên phải là một trong: Low, Medium, High"
@@ -55,7 +73,17 @@ const addTask = async (req, res) => {
     // 4. Lưu vào database
     await newTask.save();
 
-    // 5. Trả về kết quả
+    // 5. Automatically update project progress if task has progress set
+    if (validated.progress !== undefined && validated.project_id) {
+      const projectProgress = await calculateProjectProgress(validated.project_id);
+      await Project.findByIdAndUpdate(
+        validated.project_id,
+        { progress: projectProgress },
+        { new: true }
+      );
+    }
+
+    // 6. Trả về kết quả
     return res.status(200).send({
       status: "SUCCESS",
       message: "Tạo task thành công!",

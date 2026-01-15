@@ -9,7 +9,10 @@ const schema = Joi.object({
   name: Joi.string().min(3).optional(),
   title: Joi.string().min(3).optional(),
   description: Joi.string().allow("").optional(),
+  description_detail: Joi.string().allow("").optional(),
+  document: Joi.string().allow("").optional(),
   status: Joi.string().valid("Not Started", "In Progress", "Completed", "Archived").optional(),
+  progress: Joi.number().min(0).max(100).optional(),
   // User gửi lên là 'deadline' cho thuận tiện
   deadline: Joi.date().optional(),
 });
