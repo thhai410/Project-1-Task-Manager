@@ -3,7 +3,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Plus, Filter, MoreVertical, MessageSquare, Paperclip, Calendar, CheckSquare } from 'lucide-react';
+import { Plus, Filter, MoreVertical, MessageSquare, Paperclip, Calendar, CheckSquare, Edit2, Trash2 } from 'lucide-react';
 import { getTasks, addTask, updateTask, deleteTask } from '../services/tasks.api';
 import { getProjects } from '../../projects/services/projects.api';
 
@@ -29,16 +29,9 @@ function TaskCard({ task, onEdit, onDelete }) {
       {...attributes}
       {...listeners}
       className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition cursor-move mb-3"
-      onClick={(e) => {
-        // Only open edit if not dragging
-        if (!isDragging) {
-          e.stopPropagation();
-          onEdit(task);
-        }
-      }}
     >
       <div className="flex items-start justify-between mb-3">
-        <h4 className="font-semibold text-gray-800 flex-1">{task.title}</h4>
+        <h4 className="font-semibold text-gray-800 flex-1 cursor-pointer hover:text-orange-600" onClick={() => onEdit(task)}>{task.title}</h4>
         <span className={`px-2 py-1 rounded text-xs font-semibold ${
           task.priority === 'High' ? 'bg-red-100 text-red-700' :
           task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
@@ -67,7 +60,7 @@ function TaskCard({ task, onEdit, onDelete }) {
         </div>
       )}
 
-      <div className="flex items-center justify-between text-sm text-gray-500">
+      <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
         <div className="flex items-center gap-2">
           {task.due_date && (
             <div className="flex items-center gap-1 text-xs">
@@ -85,6 +78,30 @@ function TaskCard({ task, onEdit, onDelete }) {
             <span className="text-xs text-gray-400">Chưa giao</span>
           )}
         </div>
+      </div>
+
+      {/* Edit & Delete Buttons */}
+      <div className="flex gap-2 pt-3 border-t border-gray-100">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(task);
+          }}
+          className="flex-1 flex items-center justify-center gap-2 px-2 py-1.5 text-xs text-gray-600 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors"
+        >
+          <Edit2 className="w-3.5 h-3.5" />
+          Sửa
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(task._id);
+          }}
+          className="flex-1 flex items-center justify-center gap-2 px-2 py-1.5 text-xs text-gray-600 bg-gray-50 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          Xóa
+        </button>
       </div>
     </div>
   );
