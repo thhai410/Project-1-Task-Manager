@@ -18,8 +18,7 @@ connect().catch(err => {
 
 // * CORS (deploy-safe)
 app.use(cors({
-  origin: true, // cho phép mọi origin (frontend + backend cùng domain)
-  credentials: true
+  origin: "*"
 }));
 
 // * Body Parser
